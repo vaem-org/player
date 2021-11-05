@@ -1,18 +1,19 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="container">
+      <vaem-player
+        src="http://10.1.0.139:3050/618270edfcf174f387f6268d.5800k.m3u8"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import VaemPlayer from '@/components/VaemPlayer';
 
 export default {
   name: 'App',
-  components: {
-    HelloWorld
-  }
+  components: { VaemPlayer }
 }
 </script>
 
@@ -23,6 +24,14 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 100%;
 }
 </style>
