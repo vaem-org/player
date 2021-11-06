@@ -112,13 +112,15 @@ export default {
       this.$refs.video.src = this.src;
     }
     document.addEventListener('fullscreenchange', this.onfullscreenchange);
+    document.addEventListener('webkitfullscreenchange', this.onfullscreenchange);
   },
   destroyed() {
     document.removeEventListener('fullscreenchange', this.onfullscreenchange);
+    document.removeEventListener('webkitfullscreenchange', this.onfullscreenchange);
   },
   methods: {
     onfullscreenchange() {
-      if (!document.fullscreenElement) {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
         this.fullscreen = false;
       }
     },
@@ -145,10 +147,18 @@ export default {
     },
     async toggleFullscreen() {
       if (!this.fullscreen) {
-        await this.$el.requestFullscreen();
+        if (this.$el.requestFullscreen) {
+          await this.$el.requestFullscreen();
+        } else {
+          await this.$el.webkitRequestFullscreen();
+        }
         this.fullscreen = true;
       } else {
-        await document.exitFullscreen();
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else {
+          await document.webkitExitFullscreen();
+        }
         this.fullscreen = false;
       }
     },
