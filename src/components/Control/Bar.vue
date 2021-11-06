@@ -72,18 +72,12 @@ import {
   mdiCastConnected
 } from '@mdi/js';
 import ControlSlider from '@/components/Control/Slider';
+import Common from '@/mixins/Common';
 
 export default {
   name: 'ControlBar',
   components: { ControlSlider },
-  filters: {
-    format(value) {
-      return [
-        Math.floor(value/60),
-        Math.floor(value%60).toString().padStart(2, '0')
-      ].join(':')
-    }
-  },
+  mixins: [Common],
   props: {
     paused: {
       type: Boolean,

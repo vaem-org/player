@@ -2,6 +2,7 @@
   <div
     class="vaem-player"
     @mousemove="onmousemove"
+    @mouseleave="clearUserActivity"
   >
     <video
       ref="video"
@@ -12,53 +13,63 @@
       @timeupdate="currentTime=$refs.video.currentTime"
       @volumechange="volume=$refs.video.volume"
     />
-    <div
-      v-if="showControls"
-      class="controls"
-    >
-      <control-play
-        :paused="paused"
-        @click="play"
-      />
-      <div class="gradient" />
-      <div class="bottom">
-        <control-slider
-          v-model="currentTime"
-          :max="duration"
-          minimal
-          @input="seek($event)"
-        />
-        <control-bar
-          :paused="paused"
-          :current-time="currentTime"
-          :duration="duration"
-          :volume="volume"
-          :muted="muted"
-          :fullscreen="fullscreen"
-          :cast-connected="castConnected"
-          @fullscreen="toggleFullscreen"
-          @play="play"
-          @toggle-mute="toggleMute"
-          @volume="setVolume"
-        />
+    <transition name="fade">
+      <div
+        v-if="showControls"
+        class="controls"
+        @click.self="play"
+      >
+        <div class="gradient" />
+        <div class="bottom">
+          <transition name="fade">
+            <div
+              v-if="seekInfo !== null"
+              class="seek-info"
+              :style="{ left: `${seekInfoLeft}px` }"
+            >
+              {{ seekInfo | format }}
+            </div>
+          </transition>
+          <control-slider
+            v-model="currentTime"
+            :max="duration"
+            minimal
+            @input="seek($event)"
+            @hover="seekInfo=$event"
+            @mouseleave="seekInfo=null"
+          />
+          <control-bar
+            :paused="paused"
+            :current-time="currentTime"
+            :duration="duration"
+            :volume="volume"
+            :muted="muted"
+            :fullscreen="fullscreen"
+            :cast-connected="castConnected"
+            @fullscreen="toggleFullscreen"
+            @play="play"
+            @toggle-mute="toggleMute"
+            @volume="setVolume"
+          />
+        </div>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 
 <script>
 import Hls from 'hls.js';
-import ControlPlay from '@/components/Control/Play';
 import ControlBar from '@/components/Control/Bar';
 import ControlSlider from '@/components/Control/Slider';
+import Common from '@/mixins/Common';
 
 export default {
   name: 'VaemPlayer',
   components: {
     ControlSlider,
-    ControlBar,
-    ControlPlay
+    ControlBar
   },
+  mixins: [Common],
   props: {
     src: {
       type: String,
@@ -74,11 +85,22 @@ export default {
     muted: false,
     volume: 1,
     fullscreen: false,
-    castConnected: false
+    castConnected: false,
+    seekInfo: null
   }),
   computed: {
     showControls() {
       return this.paused || this.userActivity;
+    },
+    seekInfoLeft() {
+      let width = this.$el.clientWidth;
+      return Math.min(
+        Math.max(
+          this.seekInfo / this.duration * width,
+          40
+        ),
+        width - 40
+      );
     }
   },
   mounted() {
@@ -106,6 +128,10 @@ export default {
       this.timer = setTimeout(() => {
         this.userActivity = false;
       }, 4000);
+    },
+    clearUserActivity() {
+      this.userActivity = false;
+      clearTimeout(this.timer);
     },
     play() {
       if (this.paused) {
@@ -172,7 +198,8 @@ export default {
   left: 0;
   right: 0;
   height: 40%;
-  background: linear-gradient(0, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+  background: linear-gradient(0, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
+  pointer-events: none;
 }
 
 .bottom {
@@ -207,8 +234,15 @@ export default {
   transition: all .3s ease-in-out;
 }
 >>> .scale-x-enter, >>> .scale-x-leave-to {
-  /*transform: scale(0, 1);*/
   width: 0;
   opacity: 0;
+}
+
+.seek-info {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  color: white;
+  margin-bottom: 10px;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 </style>

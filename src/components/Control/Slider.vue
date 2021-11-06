@@ -5,6 +5,7 @@
     @pointerdown.self.prevent="onpointerdown"
     @pointerup="onpointerup"
     @pointermove="onpointermove"
+    @mouseleave="$emit('mouseleave')"
   >
     <div class="bar">
       <div
@@ -14,7 +15,7 @@
     </div>
     <div
       class="scrubber"
-      :style="{left: width}"
+      :style="{ left: width }"
     />
   </div>
 </template>
@@ -46,13 +47,13 @@ export default {
   }),
   computed: {
     width() {
-      return (this.pointerdown ? this.pointerValue : this.value)/this.max*100 + '%';
+      return (this.pointerdown ? this.pointerValue : this.value) / this.max * 100 + '%';
     },
     pointerValue() {
       return Math.min(
-          Math.max(this.pointerX / this.$el.clientWidth * this.max, 0),
-          this.max
-        );
+        Math.max(this.pointerX / this.$el.clientWidth * this.max, 0),
+        this.max
+      );
     }
   },
   methods: {
@@ -76,6 +77,7 @@ export default {
       if (this.immediate && this.pointerdown) {
         this.$emit('input', this.pointerValue);
       }
+      this.$emit('hover', this.pointerValue);
     }
   }
 }
