@@ -1,36 +1,59 @@
 <template>
-  <div class="vaem-player">
+  <div
+    class="vaem-player"
+    @mousemove="onmousemove"
+  >
     <video
       ref="video"
-      @playing="playing=true"
-      @pause="playing=false"
+      :muted="muted"
+      @playing="paused=false"
+      @pause="paused=true"
+      @durationchange="duration=$refs.video.duration"
+      @timeupdate="currentTime=$refs.video.currentTime"
+      @volumechange="volume=$refs.video.volume"
     />
     <div
-      v-if="!playing"
+      v-if="showControls"
       class="controls"
     >
-      <button
+      <control-play
+        :paused="paused"
         @click="play"
-      >
-        <svg-icon
-          type="mdi"
-          :path="mdiPlay"
-          :size="64"
+      />
+      <div class="gradient" />
+      <div class="bottom">
+        <control-progress
+          :current-time="currentTime"
+          :duration="duration"
         />
-      </button>
+        <control-bar
+          :paused="paused"
+          :current-time="currentTime"
+          :duration="duration"
+          :volume="volume"
+          :muted="muted"
+          :fullscreen="fullscreen"
+          @fullscreen="toggleFullscreen"
+          @play="play"
+          @toggle-mute="toggleMute"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Hls from 'hls.js';
-import SvgIcon from '@jamescoyle/vue-icon';
-import { mdiPlay } from '@mdi/js';
+import ControlPlay from '@/components/Control/Play';
+import ControlBar from '@/components/Control/Bar';
+import ControlProgress from '@/components/Control/Progress';
 
 export default {
   name: 'VaemPlayer',
   components: {
-    SvgIcon
+    ControlProgress,
+    ControlBar,
+    ControlPlay
   },
   props: {
     src: {
@@ -39,34 +62,21 @@ export default {
     }
   },
   data: () => ({
-    mdiPlay,
-
-    playing: false
+    userActivity: false,
+    duration: 0,
+    currentTime: 0,
+    paused: true,
+    ended: false,
+    muted: false,
+    volume: 1,
+    fullscreen: false
   }),
-  async mounted() {
-    const castSenderUrl = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
-    if (!document.querySelector(`script[src="${castSenderUrl}"]`)) {
-      await new Promise((resolve, reject) => {
-        window.__onGCastApiAvailable = resolve;
-        const script = document.createElement('script');
-        script.src = castSenderUrl;
-        script.addEventListener('error', reject);
-        document.querySelector('head').appendChild(script);
-      });
+  computed: {
+    showControls() {
+      return this.paused || this.userActivity;
     }
-
-    const context = cast.framework.CastContext.getInstance();
-    context.setOptions({
-      receiverApplicationId: 'C0507A6F',
-      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-    });
-    this.castContext = context;
-
-    context.addEventListener(
-      cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-      this.updateCastContext
-    )
-
+  },
+  mounted() {
     if (Hls.isSupported()) {
       this.hls = new Hls();
       this.hls.loadSource(this.src);
@@ -74,40 +84,48 @@ export default {
     } else {
       this.$refs.video.src = this.src;
     }
+    document.addEventListener('fullscreenchange', this.onfullscreenchange);
   },
   destroyed() {
-    this.castContext.removeEventListener(
-      cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-      this.updateCastContext
-    )
+    document.removeEventListener('fullscreenchange', this.onfullscreenchange);
   },
   methods: {
-    updateCastContext({ sessionState }) {
-      if ([
-        cast.framework.SessionState.SESSION_STARTED,
-        cast.framework.SessionState.SESSION_RESUMED,
-      ].includes(sessionState)) {
-        console.log('Session available');
-        const request = new chrome.cast.media.LoadRequest(
-          new chrome.cast.media.MediaInfo(
-            this.src,
-            'application/x-mpegURL'
-          )
-        )
-        this.castContext.getCurrentSession().loadMedia(
-          request
-        );
+    onfullscreenchange() {
+      if (!document.fullscreenElement) {
+        this.fullscreen = false;
       }
     },
-
+    onmousemove() {
+      clearTimeout(this.timer);
+      this.userActivity = true;
+      this.timer = setTimeout(() => {
+        this.userActivity = false;
+      }, 4000);
+    },
     play() {
-      this.$refs.video.play();
+      if (this.paused) {
+        this.$refs.video.play();
+      } else {
+        this.$refs.video.pause();
+      }
+    },
+    toggleMute() {
+      this.muted = !this.muted;
+    },
+    async toggleFullscreen() {
+      if (!this.fullscreen) {
+        await this.$el.requestFullscreen();
+        this.fullscreen = true;
+      } else {
+        await document.exitFullscreen();
+        this.fullscreen = false;
+      }
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 .vaem-player {
   position: relative;
   padding-top: 52.6%;
@@ -136,12 +154,33 @@ export default {
   justify-content: center;
 }
 
-.controls button {
+.gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(0, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+}
+
+.bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+>>> button {
   appearance: none;
   background: transparent;
   outline: none;
   border: none;
   color: white;
   cursor: pointer;
+  padding: 0;
 }
 </style>

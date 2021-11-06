@@ -2,7 +2,7 @@
   <div id="app">
     <div class="container">
       <vaem-player
-        src="http://10.1.0.139:3050/618270edfcf174f387f6268d.5800k.m3u8"
+        src="https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
       />
     </div>
   </div>
@@ -22,7 +22,6 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 
@@ -32,6 +31,6 @@ html, body {
 }
 
 .container {
-  width: 100%;
+  width: 640px;
 }
 </style>
