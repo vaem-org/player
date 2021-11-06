@@ -12,6 +12,8 @@
       @durationchange="duration=$refs.video.duration"
       @timeupdate="currentTime=$refs.video.currentTime"
       @volumechange="volume=$refs.video.volume"
+      @webkitplaybacktargetavailabilitychanged="showCastButton=true"
+      @webkitcurrentplaybacktargetiswirelesschanged="onAirplay"
     />
     <transition name="fade">
       <div
@@ -46,10 +48,12 @@
             :muted="muted"
             :fullscreen="fullscreen"
             :cast-connected="castConnected"
+            :show-cast-button="showCastButton"
             @fullscreen="toggleFullscreen"
             @play="play"
             @toggle-mute="toggleMute"
             @volume="setVolume"
+            @cast="selectCastDevice"
           />
         </div>
       </div>
@@ -86,7 +90,8 @@ export default {
     volume: 1,
     fullscreen: false,
     castConnected: false,
-    seekInfo: null
+    seekInfo: null,
+    showCastButton: false
   }),
   computed: {
     showControls() {
@@ -104,12 +109,12 @@ export default {
     }
   },
   mounted() {
-    if (Hls.isSupported()) {
+    if (this.$refs.video.canPlayType('application/vnd.apple.mpegurl')) {
+      this.$refs.video.src = this.src;
+    } else if (Hls.isSupported()) {
       this.hls = new Hls();
       this.hls.loadSource(this.src);
       this.hls.attachMedia(this.$refs.video);
-    } else {
-      this.$refs.video.src = this.src;
     }
     document.addEventListener('fullscreenchange', this.onfullscreenchange);
     document.addEventListener('webkitfullscreenchange', this.onfullscreenchange);
@@ -168,6 +173,12 @@ export default {
     },
     seek(time) {
       this.$refs.video.currentTime = time;
+    },
+    selectCastDevice() {
+      this.$refs.video.webkitShowPlaybackTargetPicker?.();
+    },
+    onAirplay() {
+      this.castConnected = this.$refs.video?.webkitCurrentPlaybackTargetIsWireless
     }
   }
 }
