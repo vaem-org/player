@@ -22,9 +22,11 @@
       />
       <div class="gradient" />
       <div class="bottom">
-        <control-progress
-          :current-time="currentTime"
-          :duration="duration"
+        <control-slider
+          v-model="currentTime"
+          :max="duration"
+          minimal
+          @input="seek($event)"
         />
         <control-bar
           :paused="paused"
@@ -33,9 +35,11 @@
           :volume="volume"
           :muted="muted"
           :fullscreen="fullscreen"
+          :cast-connected="castConnected"
           @fullscreen="toggleFullscreen"
           @play="play"
           @toggle-mute="toggleMute"
+          @volume="setVolume"
         />
       </div>
     </div>
@@ -46,12 +50,12 @@
 import Hls from 'hls.js';
 import ControlPlay from '@/components/Control/Play';
 import ControlBar from '@/components/Control/Bar';
-import ControlProgress from '@/components/Control/Progress';
+import ControlSlider from '@/components/Control/Slider';
 
 export default {
   name: 'VaemPlayer',
   components: {
-    ControlProgress,
+    ControlSlider,
     ControlBar,
     ControlPlay
   },
@@ -69,7 +73,8 @@ export default {
     ended: false,
     muted: false,
     volume: 1,
-    fullscreen: false
+    fullscreen: false,
+    castConnected: false
   }),
   computed: {
     showControls() {
@@ -120,6 +125,13 @@ export default {
         await document.exitFullscreen();
         this.fullscreen = false;
       }
+    },
+    setVolume(volume) {
+      this.$refs.video.volume = volume;
+      this.muted = false;
+    },
+    seek(time) {
+      this.$refs.video.currentTime = time;
     }
   }
 }
@@ -182,5 +194,21 @@ export default {
   color: white;
   cursor: pointer;
   padding: 0;
+}
+
+>>> .fade-enter-active, >>> .fade-leave-active {
+  transition: opacity .5s
+}
+>>> .fade-enter, >>> .fade-leave-to {
+  opacity: 0
+}
+
+>>> .scale-x-enter-active, >>> .scale-x-leave-active {
+  transition: all .3s ease-in-out;
+}
+>>> .scale-x-enter, >>> .scale-x-leave-to {
+  /*transform: scale(0, 1);*/
+  width: 0;
+  opacity: 0;
 }
 </style>

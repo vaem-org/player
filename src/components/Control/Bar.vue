@@ -1,5 +1,8 @@
 <template>
-  <div class="control-bar">
+  <div
+    class="control-bar"
+    @mouseleave.self="showVolume=false"
+  >
     <button
       @click="$emit('play')"
     >
@@ -11,6 +14,7 @@
     </button>
     <button
       @click="$emit('toggle-mute')"
+      @mouseover="showVolume=true"
     >
       <svg-icon
         type="mdi"
@@ -18,10 +22,30 @@
         :path="volumeIcon"
       />
     </button>
+    <transition name="scale-x">
+      <control-slider
+        v-if="showVolume"
+        :value="muted ? 0 : volume"
+        :max="1"
+        immediate
+        class="volume"
+        @input="$emit('volume', $event)"
+      />
+    </transition>
     <span>
       {{ currentTime | format }}/{{ duration | format }}
     </span>
     <div class="spacer" />
+    <button
+      v-if="showCastButton"
+      @click="$emit('cast')"
+    >
+      <svg-icon
+        type="mdi"
+        :size="iconSize"
+        :path="castConnected ? mdiCastConnected : mdiCast"
+      />
+    </button>
     <button
       @click="$emit('fullscreen')"
     >
@@ -38,15 +62,20 @@
 import {
   mdiPlay,
   mdiPause,
+  mdiVolumeLow,
   mdiVolumeMedium,
   mdiVolumeHigh,
   mdiVolumeOff,
   mdiFullscreen,
-  mdiFullscreenExit
+  mdiFullscreenExit,
+  mdiCast,
+  mdiCastConnected
 } from '@mdi/js';
+import ControlSlider from '@/components/Control/Slider';
 
 export default {
   name: 'ControlBar',
+  components: { ControlSlider },
   filters: {
     format(value) {
       return [
@@ -79,6 +108,14 @@ export default {
     fullscreen: {
       type: Boolean,
       required: true
+    },
+    showCastButton: {
+      type: Boolean,
+      default: false
+    },
+    castConnected: {
+      type: Boolean,
+      required: true
     }
   },
   data: () => ({
@@ -86,14 +123,19 @@ export default {
     mdiPause,
     mdiFullscreen,
     mdiFullscreenExit,
+    mdiCast,
+    mdiCastConnected,
 
-    iconSize: 32
+    iconSize: 32,
+    showVolume: false
   }),
   computed: {
     volumeIcon() {
       if (this.volume === 0 || this.muted) {
         return mdiVolumeOff
-      } else if (this.volume === 1) {
+      } else if (this.volume < 0.25) {
+        return mdiVolumeLow
+      } else if (this.volume > 0.75) {
         return mdiVolumeHigh
       } else {
         return mdiVolumeMedium
@@ -126,5 +168,9 @@ export default {
 
 .spacer {
   flex-grow: 1;
+}
+
+.volume {
+  width: 40px;
 }
 </style>
