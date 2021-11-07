@@ -2,7 +2,8 @@
   <div
     class="vaem-player"
     :style="{ '--primary-color': primaryColor }"
-    @mousemove="onmousemove"
+    @mousemove="setUserActivity"
+    @mousedown="setUserActivity"
     @mouseleave="clearUserActivity"
   >
     <component
@@ -216,7 +217,7 @@ export default {
         this.fullscreen = false;
       }
     },
-    onmousemove() {
+    setUserActivity() {
       clearTimeout(this.timer);
       this.userActivity = true;
       this.timer = setTimeout(() => {
@@ -236,6 +237,9 @@ export default {
     },
     toggleMute() {
       this.muted = !this.muted;
+      if (this.tech === 'video') {
+        this.$refs.video.muted = this.muted;
+      }
     },
     async toggleFullscreen() {
       if (!this.fullscreen) {
