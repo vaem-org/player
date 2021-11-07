@@ -23,9 +23,4 @@ export async function init({ receiverApplicationId = '315F9120' }={}) {
   });
 
   initialised = true;
-
-  // context.addEventListener(
-  //   cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-  //   this.updateCastContext
-  // )
 }

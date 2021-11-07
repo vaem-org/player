@@ -5,9 +5,14 @@
     @mousemove="onmousemove"
     @mouseleave="clearUserActivity"
   >
-    <video
+    <component
+      :is="tech"
       ref="video"
       :muted="muted"
+      :src="tech!=='video' && src"
+      :autoplay="autoplay2"
+      :initial-time="initialTime"
+      @muted="muted=$event"
       @playing="paused=false"
       @pause="paused=true"
       @durationchange="duration=$refs.video.duration"
@@ -19,13 +24,6 @@
       @canplay="waiting=false"
       @progress="buffered=$refs.video.buffered"
       @error="onerror"
-    />
-    <control-cast
-      v-if="tech==='cast'"
-      ref="cast"
-      :src="src"
-      @timeupdate="currentTime=$event"
-      @durationchange="duration=$event"
     />
     <transition name="fade">
       <div
@@ -99,24 +97,32 @@ export default {
     primaryColor: {
       type: String,
       default: 'red'
+    },
+    autoplay: {
+      type: Boolean,
+      default: false
     }
   },
-  data: () => ({
-    userActivity: false,
-    duration: 0,
-    currentTime: 0,
-    paused: true,
-    ended: false,
-    muted: false,
-    volume: 1,
-    fullscreen: false,
-    castConnected: false,
-    seekInfo: null,
-    showCastButton: false,
-    tech: 'html5',
-    buffered: null,
-    waiting: true
-  }),
+  data() {
+    return {
+      userActivity: false,
+      duration: 0,
+      currentTime: 0,
+      paused: true,
+      ended: false,
+      muted: false,
+      volume: 1,
+      fullscreen: false,
+      castConnected: false,
+      seekInfo: null,
+      showCastButton: false,
+      tech: 'video',
+      buffered: null,
+      waiting: true,
+      autoplay2: this.autoplay,
+      initialTime: 0
+    };
+  },
   computed: {
     showControls() {
       return this.paused || this.userActivity || this.castConnected;
@@ -130,9 +136,6 @@ export default {
         ),
         width - 40
       );
-    },
-    controller() {
-      return this.tech === 'html5' ? this.$refs.video : this.$refs.cast
     },
     bufferedRanges() {
       if (!this.buffered) {
@@ -150,13 +153,7 @@ export default {
   },
   async mounted() {
     await init();
-    if (this.$refs.video.canPlayType('application/vnd.apple.mpegurl')) {
-      this.$refs.video.src = this.src;
-    } else if (Hls.isSupported()) {
-      this.hls = new Hls();
-      this.hls.loadSource(this.src);
-      this.hls.attachMedia(this.$refs.video);
-    }
+    this.initHls();
     document.addEventListener('fullscreenchange', this.onfullscreenchange);
     document.addEventListener('webkitfullscreenchange', this.onfullscreenchange);
     this.castContext = cast.framework.CastContext.getInstance();
@@ -175,10 +172,38 @@ export default {
     document.removeEventListener('webkitfullscreenchange', this.onfullscreenchange);
   },
   methods: {
-    updateCastState() {
+    initHls() {
+      if (this.$refs.video.canPlayType('application/vnd.apple.mpegurl')) {
+        this.$refs.video.src = this.src;
+      } else if (Hls.isSupported()) {
+        this.hls = new Hls();
+        this.hls.loadSource(this.src);
+        this.hls.attachMedia(this.$refs.video);
+        this.$refs.video.currentTime = this.initialTime;
+      }
+    },
+    async updateCastState() {
       this.castConnected = this.castContext.getCastState() === 'CONNECTED';
       this.showCastButton = this.castContext.getCastState() !== 'NO_DEVICES_AVAILABLE';
-      this.tech = this.castConnected ? 'cast' : 'html5';
+
+      this.autoplay2 = !this.paused;
+      this.initialTime = this.currentTime;
+      if (!this.castConnected && this.tech !== 'video') {
+        this.tech = 'video';
+        // re-initialise hls
+        await this.$nextTick();
+        this.initHls();
+        this.buffered = [];
+      } else if (this.castConnected && this.tech !== 'control-cast') {
+        if (this.hls) {
+          // remove hls
+          this.hls.destroy();
+          this.hls = null;
+        }
+        await this.$nextTick();
+        this.tech = 'control-cast';
+        this.buffered = [];
+      }
     },
     onfullscreenchange() {
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -198,9 +223,9 @@ export default {
     },
     play() {
       if (this.paused) {
-        this.controller.play();
+        this.$refs.video.play();
       } else {
-        this.controller.pause();
+        this.$refs.video.pause();
       }
     },
     toggleMute() {
@@ -224,11 +249,19 @@ export default {
       }
     },
     setVolume(volume) {
-      this.controller.volume = volume;
+      if (this.tech === 'video') {
+        this.$refs.video.volume = volume;
+      } else {
+        this.$refs.video.setVolume(volume);
+      }
       this.muted = false;
     },
     seek(time) {
-      this.controller.currentTime = time;
+      if (this.tech ==='video') {
+        this.$refs.video.currentTime = time;
+      } else {
+        this.$refs.video.setCurrentTime(time);
+      }
     },
     selectCastDevice() {
       if (this.$refs.video.webkitShowPlaybackTargetPicker) {
