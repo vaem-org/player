@@ -2,7 +2,7 @@
   <div id="app">
     <div class="container">
       <vaem-player
-        src="https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8"
+        :src="src"
       />
     </div>
   </div>
@@ -13,7 +13,10 @@ import VaemPlayer from '@/components/VaemPlayer';
 
 export default {
   name: 'App',
-  components: { VaemPlayer }
+  components: { VaemPlayer },
+  data: () => ({
+    src: process.env.VUE_APP_TEST_VIDEO ?? 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8'
+  })
 }
 </script>
 

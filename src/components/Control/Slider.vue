@@ -9,6 +9,12 @@
   >
     <div class="bar">
       <div
+        v-for="({ start, end }, i) of ranges"
+        :key="i"
+        class="range"
+        :style="{ left: getX(start) + '%', width: getX(end) - getX(start) + '%' }"
+      />
+      <div
         class="progress"
         :style="{ width }"
       />
@@ -39,6 +45,10 @@ export default {
     immediate: {
       type: Boolean,
       default: false
+    },
+    ranges: {
+      type: Array,
+      default: () => []
     }
   },
   data: () => ({
@@ -57,6 +67,9 @@ export default {
     }
   },
   methods: {
+    getX(value) {
+      return value / this.max * 100;
+    },
     onpointerdown({ offsetX, pointerId }) {
       this.pointerdown = true;
       this.pointerX = offsetX;
@@ -83,6 +96,7 @@ export default {
 }
 </script>
 
+<!--suppress CssUnresolvedCustomProperty -->
 <style scoped>
 .control-progress {
   height: 10px;
@@ -101,9 +115,20 @@ export default {
   pointer-events: none;
 }
 
-.progress {
+.range {
+  top: 0;
   height: 100%;
-  background: red;
+  position: absolute;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--primary-color);
+  z-index: 1;
 }
 
 .scrubber {
@@ -113,7 +138,7 @@ export default {
   height: 10px;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: red;
+  background:  var(--primary-color);
   pointer-events: none;
 }
 

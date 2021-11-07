@@ -2,11 +2,14 @@ import SvgIcon from '@jamescoyle/vue-icon';
 
 export default {
   filters: {
-    format(value) {
+    format(value, alwaysIncludeHours=false) {
       return [
-        Math.floor(value/60),
-        Math.floor(value%60).toString().padStart(2, '0')
-      ].join(':')
+        ...value>=3600 || alwaysIncludeHours ? [Math.floor(value/3600)] : [],
+        Math.floor(value/60) % 60,
+        Math.floor(value%60)
+      ]
+      .map((v, i) => i===0 ? v : v.toString().padStart(2, '0'))
+      .join(':')
     }
   },
   components: {

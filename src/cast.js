@@ -1,4 +1,10 @@
-export async function init() {
+let initialised = false;
+
+export async function init({ receiverApplicationId = '315F9120' }={}) {
+  if (initialised) {
+    return;
+  }
+
   const castSenderUrl = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
   if (!document.querySelector(`script[src="${castSenderUrl}"]`)) {
     await new Promise((resolve, reject) => {
@@ -12,9 +18,11 @@ export async function init() {
 
   const context = cast.framework.CastContext.getInstance();
   context.setOptions({
-    receiverApplicationId: 'C0507A6F',
+    receiverApplicationId,
     autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
   });
+
+  initialised = true;
 
   // context.addEventListener(
   //   cast.framework.CastContextEventType.SESSION_STATE_CHANGED,

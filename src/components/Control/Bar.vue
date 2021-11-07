@@ -4,6 +4,7 @@
     @mouseleave.self="showVolume=false"
   >
     <button
+      v-if="!waiting"
       @click="$emit('play')"
     >
       <svg-icon
@@ -12,6 +13,11 @@
         :path="paused ? mdiPlay : mdiPause"
       />
     </button>
+    <control-loader
+      v-else
+      :size="iconSize"
+      :width="4"
+    />
     <button
       @click="$emit('toggle-mute')"
       @mouseover="showVolume=true"
@@ -33,7 +39,7 @@
       />
     </transition>
     <span>
-      {{ currentTime | format }}/{{ duration | format }}
+      {{ currentTime | format(duration>=3600) }}/{{ duration | format }}
     </span>
     <div class="spacer" />
     <button
@@ -73,10 +79,11 @@ import {
 } from '@mdi/js';
 import ControlSlider from '@/components/Control/Slider';
 import Common from '@/mixins/Common';
+import ControlLoader from '@/components/Control/Loader';
 
 export default {
   name: 'ControlBar',
-  components: { ControlSlider },
+  components: { ControlLoader, ControlSlider },
   mixins: [Common],
   props: {
     paused: {
@@ -108,6 +115,10 @@ export default {
       default: false
     },
     castConnected: {
+      type: Boolean,
+      required: true
+    },
+    waiting: {
       type: Boolean,
       required: true
     }
