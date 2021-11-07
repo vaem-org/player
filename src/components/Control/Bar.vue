@@ -19,6 +19,7 @@
       :width="4"
     />
     <button
+      v-if="showAudioControls"
       @click="$emit('toggle-mute')"
       @mouseover="showVolume=true"
     >
@@ -121,6 +122,10 @@ export default {
     waiting: {
       type: Boolean,
       required: true
+    },
+    showAudioControls: {
+      type: Boolean,
+      default: true
     }
   },
   data: () => ({

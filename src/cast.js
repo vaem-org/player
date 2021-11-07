@@ -16,11 +16,13 @@ export async function init({ receiverApplicationId = '315F9120' }={}) {
     });
   }
 
-  const context = cast.framework.CastContext.getInstance();
-  context.setOptions({
-    receiverApplicationId,
-    autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-  });
+  if (window.cast) {
+    const context = cast.framework.CastContext.getInstance();
+    context.setOptions({
+      receiverApplicationId,
+      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+    });
+  }
 
   initialised = true;
 }

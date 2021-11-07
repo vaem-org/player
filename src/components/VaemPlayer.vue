@@ -24,6 +24,7 @@
       @canplay="waiting=false"
       @progress="buffered=$refs.video.buffered"
       @error="onerror"
+      @click.self="play"
     />
     <transition name="fade">
       <div
@@ -61,6 +62,7 @@
             :cast-connected="castConnected"
             :show-cast-button="showCastButton"
             :waiting="waiting"
+            :show-audio-controls="tech!=='video' || !castConnected"
             @fullscreen="toggleFullscreen"
             @play="play"
             @toggle-mute="toggleMute"
@@ -156,18 +158,22 @@ export default {
     this.initHls();
     document.addEventListener('fullscreenchange', this.onfullscreenchange);
     document.addEventListener('webkitfullscreenchange', this.onfullscreenchange);
-    this.castContext = cast.framework.CastContext.getInstance();
-    this.castContext.addEventListener(
-      cast.framework.CastContextEventType.CAST_STATE_CHANGED,
-      this.updateCastState
-    );
-    this.updateCastState();
+    if (window.cast) {
+      this.castContext = cast.framework.CastContext.getInstance();
+      this.castContext.addEventListener(
+        cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+        this.updateCastState
+      );
+      return this.updateCastState();
+    }
   },
   destroyed() {
-    this.castContext.removeEventListener(
-      cast.framework.CastContextEventType.CAST_STATE_CHANGED,
-      this.updateCastState
-    );
+    if (this.castContext) {
+      this.castContext.removeEventListener(
+        cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+        this.updateCastState
+      );
+    }
     document.removeEventListener('fullscreenchange', this.onfullscreenchange);
     document.removeEventListener('webkitfullscreenchange', this.onfullscreenchange);
   },
