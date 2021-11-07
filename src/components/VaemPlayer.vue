@@ -13,6 +13,7 @@
       :src="tech!=='video' && src"
       :autoplay="autoplay2"
       :initial-time="initialTime"
+      crossorigin="anonymous"
       @muted="muted=$event"
       @playing="paused=false"
       @pause="paused=true"
@@ -27,9 +28,14 @@
       @error="onerror"
       @click.self="play"
     />
+    <control-text-track
+      v-if="activeTextTrack"
+      :src="activeTextTrack.src"
+      :time="currentTime"
+    />
     <transition name="fade">
       <div
-        v-if="showControls"
+        v-if="controls && showControls"
         class="controls"
         @click.self="play"
       >
@@ -83,10 +89,14 @@ import ControlSlider from '@/components/Control/Slider';
 import Common from '@/mixins/Common';
 import { init } from '@/cast';
 import ControlCast from '@/components/Control/Cast';
+import ControlSubtitles from '@/components/Control/TextTrack';
+import ControlTextTrack from '@/components/Control/TextTrack';
 
 export default {
   name: 'VaemPlayer',
   components: {
+    ControlTextTrack,
+    ControlSubtitles,
     ControlCast,
     ControlSlider,
     ControlBar
@@ -104,6 +114,14 @@ export default {
     autoplay: {
       type: Boolean,
       default: false
+    },
+    controls: {
+      type: Boolean,
+      default: true
+    },
+    textTracks: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
@@ -123,7 +141,8 @@ export default {
       buffered: null,
       waiting: true,
       autoplay2: this.autoplay,
-      initialTime: 0
+      initialTime: 0,
+      activeTextTrack: this.textTracks.find((track) => track.default)
     };
   },
   computed: {
@@ -152,6 +171,11 @@ export default {
         })
       }
       return ret;
+    }
+  },
+  watch: {
+    textTracks(textTracks) {
+      this.activeTextTrack = textTracks.find((track) => track.default)
     }
   },
   async mounted() {
@@ -372,5 +396,12 @@ export default {
   color: white;
   margin-bottom: 10px;
   text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.control-subtitle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 </style>
