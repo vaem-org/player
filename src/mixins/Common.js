@@ -2,9 +2,9 @@ import SvgIcon from '@jamescoyle/vue-icon';
 
 export default {
   filters: {
-    format(value, alwaysIncludeHours=false) {
+    format(value) {
       return [
-        ...value>=3600 || alwaysIncludeHours ? [Math.floor(value/3600)] : [],
+        ...value>=3600  ? [Math.floor(value/3600)] : [],
         Math.floor(value/60) % 60,
         Math.floor(value%60)
       ]

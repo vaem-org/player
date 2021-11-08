@@ -1,7 +1,7 @@
 <template>
   <div
     class="vaem-player"
-    :style="{ '--primary-color': primaryColor }"
+    :style="style"
     @mousemove="setUserActivity"
     @mousedown="setUserActivity"
     @mouseleave="clearUserActivity"
@@ -94,12 +94,12 @@
 
 <script>
 import Hls from 'hls.js';
-import ControlBar from '@/components/Control/Bar';
-import ControlSlider from '@/components/Control/Slider';
-import Common from '@/mixins/Common';
-import { init } from '@/cast';
-import ControlCast from '@/components/Control/Cast';
-import ControlTextTrack from '@/components/Control/TextTrack';
+import ControlBar from './Control/Bar';
+import ControlSlider from './Control/Slider';
+import Common from '../mixins/Common';
+import { init } from '../cast';
+import ControlCast from './Control/Cast';
+import ControlTextTrack from './Control/TextTrack';
 
 export default {
   name: 'VaemPlayer',
@@ -137,6 +137,10 @@ export default {
         error: 'Unable to play content',
         off: 'Off'
       })
+    },
+    aspectRatio: {
+      type: Number,
+      default: 16/9
     }
   },
   data() {
@@ -187,6 +191,12 @@ export default {
         })
       }
       return ret;
+    },
+    style() {
+      return {
+        '--primary-color': this.primaryColor,
+        'paddingTop': this.aspectRatio ? 1 / this.aspectRatio * 100 + '%' : null
+      }
     }
   },
   watch: {
@@ -194,6 +204,17 @@ export default {
       immediate: true,
       handler(textTracks) {
         this.activeTextTrack = textTracks?.find?.((track) => track.default)
+      }
+    },
+    src(src) {
+      if (this.tech !== 'video') {
+        return;
+      }
+
+      if (this.hls) {
+        this.hls.loadSource(src);
+      } else {
+        this.$refs.video.src = src;
       }
     }
   },
@@ -346,7 +367,6 @@ export default {
 <style scoped>
 .vaem-player {
   position: relative;
-  padding-top: 52.6%;
   background: black;
 }
 

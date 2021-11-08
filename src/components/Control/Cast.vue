@@ -10,7 +10,7 @@
 
 <script>
 import { mdiCast } from '@mdi/js';
-import Common from '@/mixins/Common';
+import Common from '../../mixins/Common';
 
 export default {
   name: 'ControlCast',

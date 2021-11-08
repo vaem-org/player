@@ -40,7 +40,7 @@
       />
     </transition>
     <span>
-      {{ currentTime | format(duration>=3600) }}/{{ duration | format }}
+      {{ currentTime | format }}/{{ duration | format }}
     </span>
     <div class="spacer" />
     <control-menu
@@ -98,10 +98,10 @@ import {
   mdiCastConnected,
   mdiSubtitles
 } from '@mdi/js';
-import ControlSlider from '@/components/Control/Slider';
-import Common from '@/mixins/Common';
-import ControlLoader from '@/components/Control/Loader';
-import ControlMenu from '@/components/Control/Menu';
+import ControlSlider from './Slider';
+import Common from '../../mixins/Common';
+import ControlLoader from './Loader';
+import ControlMenu from './Menu';
 
 export default {
   name: 'ControlBar',
