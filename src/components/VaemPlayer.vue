@@ -70,6 +70,7 @@
             :show-cast-button="showCastButton"
             :waiting="waiting"
             :show-audio-controls="tech!=='video' || !castConnected"
+            :text-tracks="textTracks"
             @fullscreen="toggleFullscreen"
             @play="play"
             @toggle-mute="toggleMute"

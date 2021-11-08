@@ -44,7 +44,19 @@
     </span>
     <div class="spacer" />
     <button
+      v-if="textTracks.length > 0"
+      class=""
+      @click="showTextTrackSelector=!showTextTrackSelector"
+    >
+      <svg-icon
+        type="mdi"
+        :size="iconSize"
+        :path="mdiSubtitles"
+      />
+    </button>
+    <button
       v-if="showCastButton"
+      class="menu"
       @click="$emit('cast')"
     >
       <svg-icon
@@ -52,6 +64,13 @@
         :size="iconSize"
         :path="castConnected ? mdiCastConnected : mdiCast"
       />
+      <transition name="fade">
+        <control-text-track-selefector
+          v-if="showTextTrackSelector"
+          :value="activeTextTrack"
+          :text-tracks="textTracks"
+        />
+      </transition>
     </button>
     <button
       @click="$emit('fullscreen')"
@@ -76,15 +95,17 @@ import {
   mdiFullscreen,
   mdiFullscreenExit,
   mdiCast,
-  mdiCastConnected
+  mdiCastConnected,
+  mdiSubtitles
 } from '@mdi/js';
 import ControlSlider from '@/components/Control/Slider';
 import Common from '@/mixins/Common';
 import ControlLoader from '@/components/Control/Loader';
+import ControlTextTrackSelefector from '@/components/Control/TextTrackSelefector';
 
 export default {
   name: 'ControlBar',
-  components: { ControlLoader, ControlSlider },
+  components: { ControlTextTrackSelefector, ControlLoader, ControlSlider },
   mixins: [Common],
   props: {
     paused: {
@@ -126,6 +147,14 @@ export default {
     showAudioControls: {
       type: Boolean,
       default: true
+    },
+    textTracks: {
+      type: Array,
+      default: () => []
+    },
+    activeTextTrack: {
+      type: Object,
+      default: () => null
     }
   },
   data: () => ({
@@ -135,9 +164,11 @@ export default {
     mdiFullscreenExit,
     mdiCast,
     mdiCastConnected,
+    mdiSubtitles,
 
     iconSize: 32,
-    showVolume: false
+    showVolume: false,
+    showTextTrackSelector: false
   }),
   computed: {
     volumeIcon() {
@@ -182,5 +213,9 @@ export default {
 
 .volume {
   width: 40px;
+}
+
+.menu {
+  position: relative;
 }
 </style>
