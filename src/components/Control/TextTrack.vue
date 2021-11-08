@@ -2,7 +2,7 @@
   <!-- eslint-disable vue/no-v-html -->
   <div
     v-if="current"
-    class="control-subtitle"
+    class="control-text-track"
     v-html="current.text"
   />
 </template>
@@ -79,7 +79,6 @@ export default {
       setTimeout(() => {
         parser.parse(data)
         parser.flush()
-        console.log(this.cues[0]);
       })
     }
   }
@@ -87,7 +86,7 @@ export default {
 </script>
 
 <style scoped>
-.control-subtitle {
+.control-text-track {
   white-space: pre-line;
   background-color: transparent;
   text-shadow: 2px 2px rgba(48, 48, 48, 0.8) !important;

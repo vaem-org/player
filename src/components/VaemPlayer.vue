@@ -99,14 +99,12 @@ import ControlSlider from '@/components/Control/Slider';
 import Common from '@/mixins/Common';
 import { init } from '@/cast';
 import ControlCast from '@/components/Control/Cast';
-import ControlSubtitles from '@/components/Control/TextTrack';
 import ControlTextTrack from '@/components/Control/TextTrack';
 
 export default {
   name: 'VaemPlayer',
   components: {
     ControlTextTrack,
-    ControlSubtitles,
     ControlCast,
     ControlSlider,
     ControlBar
@@ -232,7 +230,9 @@ export default {
         this.hls.loadSource(this.src);
         this.hls.attachMedia(this.$refs.video);
         this.hls.on('hlsError', (event, error) => {
-          this.onerror(error);
+          if (error.fatal) {
+            this.onerror(error);
+          }
         });
         this.$refs.video.currentTime = this.initialTime;
       }
@@ -426,7 +426,7 @@ export default {
   text-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
-.control-subtitle {
+.control-text-track {
   position: absolute;
   bottom: 0;
   left: 0;
