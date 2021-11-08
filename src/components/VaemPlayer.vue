@@ -15,7 +15,7 @@
       :initial-time="initialTime"
       crossorigin="anonymous"
       @muted="muted=$event"
-      @playing="paused=false"
+      @playing="paused=false;error=false"
       @pause="paused=true"
       @durationchange="duration=$refs.video.duration"
       @timeupdate="currentTime=$refs.video.currentTime"
@@ -28,6 +28,12 @@
       @error="onerror"
       @click.self="play"
     />
+    <div
+      v-if="error"
+      class="error-message"
+    >
+      {{ messages.error }}
+    </div>
     <control-text-track
       v-if="activeTextTrack"
       :src="activeTextTrack.src"
@@ -72,6 +78,7 @@
             :show-audio-controls="tech!=='video' || !castConnected"
             :text-tracks="textTracks"
             :active-text-track="activeTextTrack"
+            :messages="messages"
             @fullscreen="toggleFullscreen"
             @play="play"
             @toggle-mute="toggleMute"
@@ -125,6 +132,13 @@ export default {
     textTracks: {
       type: Array,
       default: () => []
+    },
+    messages: {
+      type: Object,
+      default: () => ({
+        error: 'Unable to play content',
+        off: 'Off'
+      })
     }
   },
   data() {
@@ -145,12 +159,13 @@ export default {
       waiting: true,
       autoplay2: this.autoplay,
       initialTime: 0,
-      activeTextTrack: null
+      activeTextTrack: null,
+      error: false
     };
   },
   computed: {
     showControls() {
-      return this.paused || this.userActivity || this.castConnected;
+      return (this.paused || this.userActivity || this.castConnected) && !this.error;
     },
     seekInfoLeft() {
       let width = this.$el.clientWidth;
@@ -216,6 +231,9 @@ export default {
         this.hls = new Hls();
         this.hls.loadSource(this.src);
         this.hls.attachMedia(this.$refs.video);
+        this.hls.on('hlsError', (event, error) => {
+          this.onerror(error);
+        });
         this.$refs.video.currentTime = this.initialTime;
       }
     },
@@ -316,6 +334,7 @@ export default {
     },
     onerror(event) {
       console.error(event);
+      this.error = true;
     },
     onSelectTextTrack(textTrack) {
       this.activeTextTrack = textTrack;
@@ -412,5 +431,15 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+.error-message {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translate(0, -50%);
+  text-align: center;
+  color: #b00020;
 }
 </style>

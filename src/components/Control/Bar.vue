@@ -155,6 +155,10 @@ export default {
     activeTextTrack: {
       type: Object,
       default: () => null
+    },
+    messages: {
+      type: Object,
+      required: true
     }
   },
   data: () => ({
@@ -191,7 +195,7 @@ export default {
         text: value.srclang.toUpperCase()
       })), {
         value: null,
-        text: 'Off'
+        text: this.messages.off
       }];
     }
   }
