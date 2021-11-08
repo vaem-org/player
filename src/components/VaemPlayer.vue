@@ -71,11 +71,13 @@
             :waiting="waiting"
             :show-audio-controls="tech!=='video' || !castConnected"
             :text-tracks="textTracks"
+            :active-text-track="activeTextTrack"
             @fullscreen="toggleFullscreen"
             @play="play"
             @toggle-mute="toggleMute"
             @volume="setVolume"
             @cast="selectCastDevice"
+            @select-text-track="onSelectTextTrack"
           />
         </div>
       </div>
@@ -143,7 +145,7 @@ export default {
       waiting: true,
       autoplay2: this.autoplay,
       initialTime: 0,
-      activeTextTrack: this.textTracks.find((track) => track.default)
+      activeTextTrack: null
     };
   },
   computed: {
@@ -175,8 +177,11 @@ export default {
     }
   },
   watch: {
-    textTracks(textTracks) {
-      this.activeTextTrack = textTracks.find((track) => track.default)
+    textTracks: {
+      immediate: true,
+      handler(textTracks) {
+        this.activeTextTrack = textTracks?.find?.((track) => track.default)
+      }
     }
   },
   async mounted() {
@@ -311,6 +316,9 @@ export default {
     },
     onerror(event) {
       console.error(event);
+    },
+    onSelectTextTrack(textTrack) {
+      this.activeTextTrack = textTrack;
     }
   }
 }

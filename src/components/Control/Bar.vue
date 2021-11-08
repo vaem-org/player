@@ -43,20 +43,27 @@
       {{ currentTime | format(duration>=3600) }}/{{ duration | format }}
     </span>
     <div class="spacer" />
-    <button
+    <control-menu
       v-if="textTracks.length > 0"
-      class=""
-      @click="showTextTrackSelector=!showTextTrackSelector"
+      :items="textTrackItems"
+      :value="activeTextTrack"
+      @input="$emit('select-text-track', $event)"
     >
-      <svg-icon
-        type="mdi"
-        :size="iconSize"
-        :path="mdiSubtitles"
-      />
-    </button>
+      <template #activator="{ on }">
+        <button
+          :class="{ inactive: activeTextTrack === null }"
+          v-on="on"
+        >
+          <svg-icon
+            type="mdi"
+            :size="iconSize"
+            :path="mdiSubtitles"
+          />
+        </button>
+      </template>
+    </control-menu>
     <button
       v-if="showCastButton"
-      class="menu"
       @click="$emit('cast')"
     >
       <svg-icon
@@ -64,13 +71,6 @@
         :size="iconSize"
         :path="castConnected ? mdiCastConnected : mdiCast"
       />
-      <transition name="fade">
-        <control-text-track-selefector
-          v-if="showTextTrackSelector"
-          :value="activeTextTrack"
-          :text-tracks="textTracks"
-        />
-      </transition>
     </button>
     <button
       @click="$emit('fullscreen')"
@@ -101,11 +101,11 @@ import {
 import ControlSlider from '@/components/Control/Slider';
 import Common from '@/mixins/Common';
 import ControlLoader from '@/components/Control/Loader';
-import ControlTextTrackSelefector from '@/components/Control/TextTrackSelefector';
+import ControlMenu from '@/components/Control/Menu';
 
 export default {
   name: 'ControlBar',
-  components: { ControlTextTrackSelefector, ControlLoader, ControlSlider },
+  components: { ControlMenu, ControlLoader, ControlSlider },
   mixins: [Common],
   props: {
     paused: {
@@ -167,8 +167,7 @@ export default {
     mdiSubtitles,
 
     iconSize: 32,
-    showVolume: false,
-    showTextTrackSelector: false
+    showVolume: false
   }),
   computed: {
     volumeIcon() {
@@ -181,6 +180,19 @@ export default {
       } else {
         return mdiVolumeMedium
       }
+    },
+    textTrackItems() {
+      if (this.textTracks.length === 0) {
+        return [];
+      }
+
+      return [...this.textTracks.map(value => ({
+        value,
+        text: value.srclang.toUpperCase()
+      })), {
+        value: null,
+        text: 'Off'
+      }];
     }
   }
 }
@@ -201,6 +213,10 @@ export default {
 
 .control-bar button {
   transition: opacity 0.2s;
+}
+
+.control-bar button.inactive {
+  color: grey;
 }
 
 .control-bar button:hover {
