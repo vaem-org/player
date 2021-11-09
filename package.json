@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/vaem-org/player"
   },
-  "private": true,
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
