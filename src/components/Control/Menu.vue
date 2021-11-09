@@ -66,6 +66,7 @@ export default {
 <style scoped>
 .control-menu {
   position: relative;
+  line-height: 0;
 }
 
 .items {

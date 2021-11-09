@@ -54,11 +54,11 @@ export default {
     this.onResize();
   },
   destroyed() {
-    this.observer.unobserve(this.$el);
+    this.observer?.unobserve?.(this.$el);
   },
   methods: {
     onResize() {
-      this.fontSize = (this.$el.clientWidth / 50) + 'px'
+      this.fontSize = Math.max(16, Math.ceil(this.$el.clientWidth / 50)) + 'px'
     },
     updateCurrent() {
       this.current = {

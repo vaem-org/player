@@ -217,6 +217,7 @@ export default {
 
 .control-bar button {
   transition: opacity 0.2s;
+  line-height: 0;
 }
 
 .control-bar button.inactive {

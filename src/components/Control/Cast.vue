@@ -31,6 +31,10 @@ export default {
     initialTime: {
       type: Number,
       default: 0
+    },
+    customData: {
+      type: Object,
+      required: true
     }
   },
   data: () => ({
@@ -116,6 +120,7 @@ export default {
         mediaInfo.metadata = new chrome.cast.media.GenericMediaMetadata();
         mediaInfo.metadata.metadataType = chrome.cast.media.MetadataType.GENERIC;
         mediaInfo.streamType = chrome.cast.media.StreamType.BUFFERED;
+        mediaInfo.customData = this.customData;
         const request = new chrome.cast.media.LoadRequest(mediaInfo);
         request.autoplay = this.autoplay;
         request.currentTime = this.initialTime;

@@ -1,6 +1,6 @@
 let initialised = false;
 
-export async function init({ receiverApplicationId = '315F9120' }={}) {
+export async function init({ receiverApplicationId = null }={}) {
   if (initialised) {
     return;
   }
@@ -19,7 +19,7 @@ export async function init({ receiverApplicationId = '315F9120' }={}) {
   if (window.cast) {
     const context = cast.framework.CastContext.getInstance();
     context.setOptions({
-      receiverApplicationId,
+      receiverApplicationId: receiverApplicationId ?? chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
       autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
     });
   }

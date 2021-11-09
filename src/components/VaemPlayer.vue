@@ -14,6 +14,7 @@
       :autoplay="autoplay2"
       :initial-time="initialTime"
       crossorigin="anonymous"
+      :custom-data="castCustomData"
       v-bind="$attrs"
       @muted="muted=$event"
       @playing="paused=false;error=false"
@@ -37,7 +38,7 @@
       {{ messages.error }}
     </div>
     <control-text-track
-      v-if="activeTextTrack"
+      v-if="activeTextTrack && tech==='video'"
       :src="activeTextTrack.src"
       :time="currentTime"
       :style="textTrackStyle"
@@ -149,6 +150,10 @@ export default {
     handleMouseLeave: {
       type: Boolean,
       default: true
+    },
+    castCustomData: {
+      type: Object,
+      default: () => ({})
     }
   },
   data() {
