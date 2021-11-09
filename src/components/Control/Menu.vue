@@ -74,13 +74,15 @@ export default {
   top: -100%;
   left: 0;
   z-index: 1;
-  transform: translate(0, -32px);
+  transform: translate(0, -40px);
 }
 
 .items button {
-  padding: 0.5em;
+  padding: 0.5em 1em;
   transition: background 0.2s;
   font-size: 16px;
+  display: block;
+  width: 100%;
 }
 
 .items button:hover {

@@ -4,7 +4,7 @@
     :style="style"
     @mousemove="setUserActivity"
     @mousedown="setUserActivity"
-    @mouseleave="clearUserActivity"
+    @mouseleave="onmouseleave"
   >
     <component
       :is="tech"
@@ -14,11 +14,13 @@
       :autoplay="autoplay2"
       :initial-time="initialTime"
       crossorigin="anonymous"
+      v-bind="$attrs"
       @muted="muted=$event"
       @playing="paused=false;error=false"
       @pause="paused=true"
       @durationchange="duration=$refs.video.duration"
-      @timeupdate="currentTime=$refs.video.currentTime"
+      @timeupdate="currentTime=$refs.video.currentTime;$emit('timeupdate', currentTime)"
+      @ended="$emit('ended')"
       @volumechange="volume=$refs.video.volume"
       @webkitplaybacktargetavailabilitychanged="showCastButton=true"
       @webkitcurrentplaybacktargetiswirelesschanged="onAirplay"
@@ -38,10 +40,11 @@
       v-if="activeTextTrack"
       :src="activeTextTrack.src"
       :time="currentTime"
+      :style="textTrackStyle"
     />
     <transition name="fade">
       <div
-        v-if="controls && showControls"
+        v-if="showControls"
         class="controls"
         @click.self="play"
       >
@@ -57,6 +60,7 @@
             </div>
           </transition>
           <control-slider
+            ref="seekSlider"
             v-model="currentTime"
             :max="duration"
             :ranges="bufferedRanges"
@@ -141,6 +145,10 @@ export default {
     aspectRatio: {
       type: Number,
       default: 16/9
+    },
+    handleMouseLeave: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -162,12 +170,13 @@ export default {
       autoplay2: this.autoplay,
       initialTime: 0,
       activeTextTrack: null,
-      error: false
+      error: false,
+      controlsOffset: 0
     };
   },
   computed: {
     showControls() {
-      return (this.paused || this.userActivity || this.castConnected) && !this.error;
+      return (this.paused || this.userActivity || this.castConnected) && !this.error && this.controls;
     },
     seekInfoLeft() {
       let width = this.$el.clientWidth;
@@ -197,6 +206,11 @@ export default {
         '--primary-color': this.primaryColor,
         'paddingTop': this.aspectRatio ? 1 / this.aspectRatio * 100 + '%' : null
       }
+    },
+    textTrackStyle() {
+      return {
+        bottom: (this.showControls ? this.controlsOffset : 0) + 'px'
+      }
     }
   },
   watch: {
@@ -215,6 +229,26 @@ export default {
         this.hls.loadSource(src);
       } else {
         this.$refs.video.src = src;
+      }
+    },
+    paused(value) {
+      this.$emit(value ? 'paused' : 'playing');
+    },
+    waiting(value) {
+      this.$emit(value ? 'waiting' : 'canplay');
+    },
+    userActivity(value) {
+      this.$emit('user-activity', value);
+    },
+    controls: {
+      immediate: true,
+      async handler(value) {
+        if (value) {
+          await this.$nextTick();
+          const seekSliderTop = this.$refs.seekSlider?.$el?.getBoundingClientRect?.()?.top;
+          const { top, height } = this.$el.getBoundingClientRect();
+          this.controlsOffset = top + height - seekSliderTop;
+        }
       }
     }
   },
@@ -244,15 +278,33 @@ export default {
   },
   methods: {
     initHls() {
+      if (!this.$refs.video) {
+        return;
+      }
+
       if (this.$refs.video.canPlayType('application/vnd.apple.mpegurl')) {
         this.$refs.video.src = this.src;
       } else if (Hls.isSupported()) {
         this.hls = new Hls();
         this.hls.loadSource(this.src);
         this.hls.attachMedia(this.$refs.video);
-        this.hls.on('hlsError', (event, error) => {
+        this.hls.on(Hls.Events.ERROR, (event, error) => {
           if (error.fatal) {
-            this.onerror(error);
+            switch (error.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                // try to recover network error
+                console.log('fatal network error encountered, try to recover');
+                this.hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log('fatal media error encountered, try to recover');
+                this.hls.recoverMediaError();
+                break;
+              default:
+                // cannot recover
+                this.onerror(error);
+                break;
+            }
           }
         });
         this.$refs.video.currentTime = this.initialTime;
@@ -359,6 +411,11 @@ export default {
     },
     onSelectTextTrack(textTrack) {
       this.activeTextTrack = textTrack;
+    },
+    onmouseleave() {
+      if (this.handleMouseLeave) {
+        this.clearUserActivity();
+      }
     }
   }
 }

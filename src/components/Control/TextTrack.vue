@@ -1,14 +1,18 @@
 <template>
   <!-- eslint-disable vue/no-v-html -->
   <div
-    v-if="current"
+    :style="{ fontSize }"
     class="control-text-track"
-    v-html="current.text"
-  />
+  >
+    <div
+      v-if="current"
+      v-html="current.text"
+    />
+  </div>
 </template>
 
 <script>
-import { WebVTT, VTTCue } from 'videojs-vtt.js'
+import { VTTCue, WebVTT } from 'videojs-vtt.js'
 
 export default {
   name: 'ControlTextTrack',
@@ -31,22 +35,36 @@ export default {
     cues: [],
     current: null,
     lastTime: 0,
-    lastIndex: 0
+    lastIndex: 0,
+    fontSize: 24
   }),
   watch: {
-    src () {
+    src() {
       return this.load()
     },
-    time () {
+    time() {
       this.updateCurrent()
     }
   },
-  mounted () {
-    this.load()
+  async mounted() {
+    await this.load()
     this.updateCurrent()
+    this.observer = new ResizeObserver(this.onResize);
+    this.observer.observe(this.$el);
+    this.onResize();
+  },
+  destroyed() {
+    this.observer.unobserve(this.$el);
   },
   methods: {
-    updateCurrent () {
+    onResize() {
+      this.fontSize = (this.$el.clientWidth / 50) + 'px'
+    },
+    updateCurrent() {
+      this.current = {
+        text: 'Rustig, Steve. We gaan.'
+      };
+
       const value = this.time
       if (this.lastTime > value) {
         this.lastTime = 0
@@ -67,19 +85,22 @@ export default {
       this.lastIndex = index
       this.lastTime = value
     },
-    async load () {
+    async load() {
       if (!this.src) {
         return
       }
 
-      const parser = new WebVTT.Parser(window, this.customCue ? { VTTCue } : {}, new WebVTT.StringDecoder())
+      const parser = new WebVTT.Parser(window,
+        this.customCue ? { VTTCue } : {},
+        new WebVTT.StringDecoder())
       const data = await fetch(this.src).then(response => response.text());
       parser.oncue = cue => this.cues.push(cue)
 
       setTimeout(() => {
         parser.parse(data)
         parser.flush()
-      })
+      });
+      this.updateCurrent();
     }
   }
 }
@@ -91,7 +112,8 @@ export default {
   background-color: transparent;
   text-shadow: 2px 2px rgba(48, 48, 48, 0.8) !important;
   color: white;
-  padding: 0.5em;
+  padding: 1em;
   text-align: center;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="control-progress"
+    class="control-slider"
     :class="{ minimal }"
     @pointerdown.self.prevent="onpointerdown"
     @pointerup="onpointerup"
@@ -98,7 +98,7 @@ export default {
 
 <!--suppress CssUnresolvedCustomProperty -->
 <style scoped>
-.control-progress {
+.control-slider {
   height: 10px;
   position: relative;
   cursor: pointer;
