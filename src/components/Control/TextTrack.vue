@@ -47,8 +47,7 @@ export default {
     }
   },
   async mounted() {
-    await this.load()
-    this.updateCurrent()
+    await this.load();
     this.observer = new ResizeObserver(this.onResize);
     this.observer.observe(this.$el);
     this.onResize();
@@ -61,10 +60,6 @@ export default {
       this.fontSize = Math.max(16, Math.ceil(this.$el.clientWidth / 50)) + 'px'
     },
     updateCurrent() {
-      this.current = {
-        text: 'Rustig, Steve. We gaan.'
-      };
-
       const value = this.time
       if (this.lastTime > value) {
         this.lastTime = 0
@@ -99,8 +94,8 @@ export default {
       setTimeout(() => {
         parser.parse(data)
         parser.flush()
+        this.updateCurrent();
       });
-      this.updateCurrent();
     }
   }
 }

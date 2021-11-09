@@ -161,7 +161,7 @@ export default {
       userActivity: false,
       duration: 0,
       currentTime: 0,
-      paused: true,
+      paused: !this.autoplay,
       ended: false,
       muted: false,
       volume: 1,
