@@ -19,14 +19,14 @@
       @playing="paused=false;error=false"
       @pause="paused=true"
       @durationchange="duration=$refs.video.duration"
-      @timeupdate="currentTime=$refs.video.currentTime;$emit('timeupdate', currentTime)"
+      @timeupdate="ontimeupdate"
       @ended="$emit('ended')"
       @volumechange="volume=$refs.video.volume"
       @webkitplaybacktargetavailabilitychanged="showCastButton=true"
       @webkitcurrentplaybacktargetiswirelesschanged="onAirplay"
       @waiting="waiting=true"
       @canplay="waiting=false"
-      @progress="buffered=$refs.video.buffered"
+      @progress="onprogress"
       @error="onerror"
       @click.self="play"
     />
@@ -307,6 +307,12 @@ export default {
             }
           }
         });
+        this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (this.autoplay) {
+            this.$refs.video.play();
+          }
+        });
+
         this.$refs.video.currentTime = this.initialTime;
       }
     },
@@ -416,6 +422,13 @@ export default {
       if (this.handleMouseLeave) {
         this.clearUserActivity();
       }
+    },
+    ontimeupdate() {
+      this.currentTime=this.$refs.video?.currentTime;
+      this.$emit('timeupdate', this.currentTime)
+    },
+    onprogress() {
+      this.buffered=this.$refs.video?.buffered
     }
   }
 }
