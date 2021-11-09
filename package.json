@@ -1,6 +1,10 @@
 {
-  "name": "player",
+  "name": "@vaem/player",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vaem-org/player"
+  },
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
