@@ -76,6 +76,7 @@ export default {
   left: 0;
   z-index: 1;
   transform: translate(0, -40px);
+  line-height: 1.25;
 }
 
 .items button {
