@@ -43,7 +43,11 @@
       :time="currentTime"
       :style="textTrackStyle"
     />
-    <transition name="fade">
+    <transition
+      name="fade"
+      @after-appear="controlsShown=true"
+      @after-leave="controlsShown=false"
+    >
       <div
         v-if="showControls"
         class="controls"
@@ -176,7 +180,8 @@ export default {
       initialTime: 0,
       activeTextTrack: null,
       error: false,
-      controlsOffset: 0
+      controlsOffset: 0,
+      controlsShown: !this.autoplay
     };
   },
   computed: {
@@ -245,7 +250,7 @@ export default {
     userActivity(value) {
       this.$emit('user-activity', value);
     },
-    controls: {
+    controlsShown: {
       immediate: true,
       async handler(value) {
         if (value) {
