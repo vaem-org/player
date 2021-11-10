@@ -149,7 +149,7 @@ export default {
     },
     aspectRatio: {
       type: Number,
-      default: 16/9
+      default: 16 / 9
     },
     handleMouseLeave: {
       type: Boolean,
@@ -158,6 +158,10 @@ export default {
     castCustomData: {
       type: Object,
       default: () => ({})
+    },
+    start: {
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -203,7 +207,7 @@ export default {
         return [];
       }
       const ret = [];
-      for(let i=0; i<this.buffered.length; i++) {
+      for (let i = 0; i < this.buffered.length; i++) {
         ret.push({
           start: this.buffered.start(i),
           end: this.buffered.end(i)
@@ -239,6 +243,7 @@ export default {
         this.hls.loadSource(src);
       } else {
         this.$refs.video.src = src;
+        this.$refs.video.currentTime = this.start;
       }
     },
     paused(value) {
@@ -337,6 +342,7 @@ export default {
           if (level) {
             this.hls.startLevel = level
           }
+          this.$refs.video.currentTime = this.initialTime || this.start;
 
           if (this.autoplay) {
             this.$refs.video.play();
@@ -424,7 +430,7 @@ export default {
       this.muted = false;
     },
     seek(time) {
-      if (this.tech ==='video') {
+      if (this.tech === 'video') {
         this.$refs.video.currentTime = time;
       } else {
         this.$refs.video.setCurrentTime(time);
@@ -454,14 +460,14 @@ export default {
       }
     },
     ontimeupdate() {
-      this.currentTime=this.$refs.video?.currentTime;
+      this.currentTime = this.$refs.video?.currentTime;
       this.$emit('timeupdate', this.currentTime)
     },
     onprogress() {
-      this.buffered=this.$refs.video?.buffered
+      this.buffered = this.$refs.video?.buffered
     },
     ondurationchange() {
-      this.duration=this.$refs.video?.duration
+      this.duration = this.$refs.video?.duration
     }
   }
 }
@@ -529,6 +535,7 @@ export default {
 >>> .fade-enter-active, >>> .fade-leave-active {
   transition: opacity .5s
 }
+
 >>> .fade-enter, >>> .fade-leave-to {
   opacity: 0
 }
@@ -536,6 +543,7 @@ export default {
 >>> .scale-x-enter-active, >>> .scale-x-leave-active {
   transition: all .3s ease-in-out;
 }
+
 >>> .scale-x-enter, >>> .scale-x-leave-to {
   width: 0;
   opacity: 0;
