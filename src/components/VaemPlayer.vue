@@ -19,7 +19,7 @@
       @muted="muted=$event"
       @playing="paused=false;error=false"
       @pause="paused=true"
-      @durationchange="duration=$refs.video.duration"
+      @durationchange="ondurationchange"
       @timeupdate="ontimeupdate"
       @ended="$emit('ended')"
       @volumechange="volume=$refs.video.volume"
@@ -45,7 +45,7 @@
     />
     <transition
       name="fade"
-      @after-appear="controlsShown=true"
+      @after-enter="controlsShown=true"
       @after-leave="controlsShown=false"
     >
       <div
@@ -247,8 +247,11 @@ export default {
     waiting(value) {
       this.$emit(value ? 'waiting' : 'canplay');
     },
-    userActivity(value) {
-      this.$emit('user-activity', value);
+    showControls: {
+      immediate: true,
+      handler(value) {
+        this.$emit('controls-visibility', value);
+      }
     },
     controlsShown: {
       immediate: true,
@@ -318,6 +321,23 @@ export default {
           }
         });
         this.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          const { level } = this.hls.levels.reduce(
+            (prev, { bitrate }, level) => {
+              if (bitrate > prev.bitrate) {
+                return {
+                  bitrate,
+                  level
+                }
+              } else {
+                return prev
+              }
+            },
+            { bitrate: 0 })
+
+          if (level) {
+            this.hls.startLevel = level
+          }
+
           if (this.autoplay) {
             this.$refs.video.play();
           }
@@ -439,6 +459,9 @@ export default {
     },
     onprogress() {
       this.buffered=this.$refs.video?.buffered
+    },
+    ondurationchange() {
+      this.duration=this.$refs.video?.duration
     }
   }
 }
