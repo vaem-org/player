@@ -185,12 +185,14 @@ export default {
       activeTextTrack: null,
       error: false,
       controlsOffset: 0,
-      controlsShown: !this.autoplay
+      controlsShown: true
     };
   },
   computed: {
     showControls() {
-      return (this.paused || this.userActivity || this.castConnected) && !this.error && this.controls;
+      return (this.paused || this.userActivity || this.castConnected || this.waiting)
+        && !this.error && this.controls
+      ;
     },
     seekInfoLeft() {
       let width = this.$el.clientWidth;
