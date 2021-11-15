@@ -12,7 +12,9 @@
 </template>
 
 <script>
-import { VTTCue, WebVTT } from 'videojs-vtt.js'
+import vtt from 'videojs-vtt.js'
+
+const { VTTCue, WebVTT } = vtt;
 
 export default {
   name: 'ControlTextTrack',

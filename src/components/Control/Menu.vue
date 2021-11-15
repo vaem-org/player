@@ -18,6 +18,7 @@
           v-for="({ text, value: itemValue }, i) of items"
           :key="i"
           :class="{ active: itemValue === value }"
+          type="button"
           @click="click(itemValue)"
         >
           {{ text }}

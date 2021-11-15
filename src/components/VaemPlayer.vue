@@ -53,6 +53,7 @@
         class="controls"
         @click.self="play"
       >
+        <slot name="controls" />
         <div class="gradient" />
         <div class="bottom">
           <transition name="fade">

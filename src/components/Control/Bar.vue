@@ -5,6 +5,7 @@
   >
     <button
       v-if="!waiting"
+      type="button"
       @click="$emit('play')"
     >
       <svg-icon
@@ -20,6 +21,7 @@
     />
     <button
       v-if="showAudioControls"
+      type="button"
       @click="$emit('toggle-mute')"
       @mouseover="showVolume=true"
     >
@@ -52,6 +54,7 @@
       <template #activator="{ on }">
         <button
           :class="{ inactive: activeTextTrack === null }"
+          type="button"
           v-on="on"
         >
           <svg-icon
@@ -64,6 +67,7 @@
     </control-menu>
     <button
       v-if="showCastButton"
+      type="button"
       @click="$emit('cast')"
     >
       <svg-icon
@@ -73,6 +77,7 @@
       />
     </button>
     <button
+      type="button"
       @click="$emit('fullscreen')"
     >
       <svg-icon
