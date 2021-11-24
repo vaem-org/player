@@ -6,6 +6,7 @@
     "url": "https://github.com/vaem-org/player"
   },
   "private": false,
+  "license": "GPL-3.0-only",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
