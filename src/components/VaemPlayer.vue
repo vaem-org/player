@@ -27,14 +27,14 @@
     <component
       :is="tech"
       ref="video"
-      :muted="muted"
+      :muted="isMuted"
       :src="tech!=='video' && src"
       :autoplay="autoplay2"
       :initial-time="initialTime"
       crossorigin="anonymous"
       :custom-data="castCustomData"
       v-bind="$attrs"
-      @muted="muted=$event"
+      @muted="isMuted=$event"
       @playing="paused=false;error=false"
       @pause="paused=true"
       @durationchange="ondurationchange"
@@ -98,7 +98,7 @@
             :current-time="currentTime"
             :duration="duration"
             :volume="volume"
-            :muted="muted"
+            :muted="isMuted"
             :fullscreen="fullscreen"
             :cast-connected="castConnected"
             :show-cast-button="showCastButton"
@@ -181,6 +181,10 @@ export default {
     start: {
       type: Number,
       default: 0
+    },
+    muted: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -190,7 +194,7 @@ export default {
       currentTime: 0,
       paused: !this.autoplay,
       ended: false,
-      muted: false,
+      isMuted: this.muted,
       volume: 1,
       fullscreen: false,
       castConnected: false,
@@ -289,6 +293,9 @@ export default {
           this.controlsOffset = top + height - seekSliderTop;
         }
       }
+    },
+    muted(newValue) {
+      this.muted = newValue
     }
   },
   async mounted() {
@@ -420,9 +427,9 @@ export default {
       }
     },
     toggleMute() {
-      this.muted = !this.muted;
+      this.isMuted = !this.isMuted;
       if (this.tech === 'video') {
-        this.$refs.video.muted = this.muted;
+        this.$refs.video.muted = this.isMuted;
       }
     },
     async toggleFullscreen() {
@@ -448,7 +455,7 @@ export default {
       } else {
         this.$refs.video.setVolume(volume);
       }
-      this.muted = false;
+      this.isMuted = false;
     },
     seek(time) {
       if (this.tech === 'video') {
