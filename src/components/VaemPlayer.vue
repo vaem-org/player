@@ -33,6 +33,7 @@
       :initial-time="initialTime"
       crossorigin="anonymous"
       :custom-data="castCustomData"
+      :poster="poster"
       v-bind="$attrs"
       @muted="isMuted=$event"
       @playing="paused=false;error=false"
@@ -185,6 +186,10 @@ export default {
     muted: {
       type: Boolean,
       default: false
+    },
+    poster: {
+      type: String,
+      default: null
     }
   },
   data() {
