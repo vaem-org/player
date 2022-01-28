@@ -378,7 +378,12 @@ export default {
           this.$refs.video.currentTime = this.initialTime || this.start;
 
           if (this.autoplay) {
-            this.$refs.video.play();
+            this.$refs.video.play()
+              .catch(() => {
+                // autoplay failed
+                this.paused = true;
+              })
+            ;
           }
         });
 
