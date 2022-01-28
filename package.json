@@ -15,14 +15,14 @@
   "main": "src/components/VaemPlayer.vue",
   "dependencies": {
     "@jamescoyle/vue-icon": "^0.1.2",
-    "@mdi/js": "^6.4.95",
-    "core-js": "^3.6.5",
-    "hls.js": "^1.0.12",
+    "@mdi/js": "^6.5.95",
+    "core-js": "^3.20.3",
+    "hls.js": "^1.1.3",
     "videojs-vtt.js": "^0.15.3",
     "vue": "^2.6.11"
   },
   "devDependencies": {
-    "@types/chromecast-caf-sender": "^1.0.4",
+    "@types/chromecast-caf-sender": "^1.0.5",
     "@vue/cli-plugin-babel": "^4.5.0",
     "@vue/cli-plugin-eslint": "^4.5.0",
     "@vue/cli-service": "^4.5.0",

@@ -384,6 +384,8 @@ export default {
                 this.paused = true;
               })
             ;
+          } else {
+            this.waiting = false;
           }
         });
 
