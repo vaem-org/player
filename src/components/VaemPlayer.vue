@@ -464,9 +464,11 @@ export default {
     setVolume(volume) {
       if (this.tech === 'video') {
         this.$refs.video.volume = volume;
+        this.$refs.video.muted = false;
       } else {
         this.$refs.video.setVolume(volume);
       }
+      console.log(`Volume: ${volume}`)
       this.isMuted = false;
     },
     seek(time) {
