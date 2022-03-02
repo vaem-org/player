@@ -61,6 +61,7 @@
       :src="activeTextTrack.src"
       :time="currentTime"
       :style="textTrackStyle"
+      :font-scale="textTrackFontScale"
     />
     <transition
       name="fade"
@@ -190,6 +191,10 @@ export default {
     poster: {
       type: String,
       default: null
+    },
+    textTrackFontScale: {
+      type: Number,
+      default: 1
     }
   },
   data() {

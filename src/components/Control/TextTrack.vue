@@ -48,6 +48,10 @@ export default {
     customCue: {
       type: Boolean,
       default: false
+    },
+    fontScale: {
+      type: Number,
+      default: 1
     }
   },
   data: () => ({
@@ -64,6 +68,9 @@ export default {
     },
     time() {
       this.updateCurrent()
+    },
+    fontScale() {
+      this.onResize();
     }
   },
   async mounted() {
@@ -77,7 +84,7 @@ export default {
   },
   methods: {
     onResize() {
-      this.fontSize = Math.max(16, Math.ceil(this.$el.clientWidth / 50)) + 'px'
+      this.fontSize = Math.max(16, Math.ceil(this.$el.clientWidth / 40 * this.fontScale)) + 'px'
     },
     updateCurrent() {
       const value = this.time
