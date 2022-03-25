@@ -340,6 +340,7 @@ export default {
 
       if (this.$refs.video.canPlayType('application/vnd.apple.mpegurl')) {
         this.$refs.video.src = this.src;
+        this.waiting = false;
       } else if (Hls.isSupported()) {
         this.hls = new Hls();
         this.hls.loadSource(this.src);
