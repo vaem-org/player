@@ -71,6 +71,6 @@ html, body {
 }
 
 .container {
-  width: 640px;
+  width: 375px;
 }
 </style>

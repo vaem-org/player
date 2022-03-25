@@ -16,4 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-module.exports = {}
+module.exports = {
+  devServer: {
+    host: 'localhost',
+    public: 'localhost:8080',
+    disableHostCheck: true
+  }
+}

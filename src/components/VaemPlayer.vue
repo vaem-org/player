@@ -321,6 +321,7 @@ export default {
       );
       return this.updateCastState();
     }
+    this.paused = this.$refs.video.paused;
   },
   destroyed() {
     if (this.castContext) {
