@@ -332,6 +332,7 @@ export default {
     }
     document.removeEventListener('fullscreenchange', this.onfullscreenchange);
     document.removeEventListener('webkitfullscreenchange', this.onfullscreenchange);
+    this.hls?.destroy?.();
   },
   methods: {
     initHls() {
