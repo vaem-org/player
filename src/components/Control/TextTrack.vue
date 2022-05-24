@@ -55,7 +55,6 @@ export default {
     }
   },
   data: () => ({
-    message: '',
     cues: [],
     current: null,
     lastTime: 0,
@@ -111,6 +110,11 @@ export default {
       if (!this.src) {
         return
       }
+
+      this.cues = [];
+      this.current = null;
+      this.lastTime = 0;
+      this.lastIndex = 0;
 
       const parser = new WebVTT.Parser(window,
         this.customCue ? { VTTCue } : {},
