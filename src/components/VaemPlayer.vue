@@ -572,7 +572,7 @@ export default {
   gap: 10px;
 }
 
->>> button {
+:deep(button) {
   appearance: none;
   background: transparent;
   outline: none;
@@ -582,19 +582,19 @@ export default {
   padding: 0;
 }
 
->>> .fade-enter-active, >>> .fade-leave-active {
+:deep(.fade-enter-active), :deep(.fade-leave-active) {
   transition: opacity .5s
 }
 
->>> .fade-enter, >>> .fade-leave-to {
+:deep(.fade-enter), :deep(.fade-leave-to) {
   opacity: 0
 }
 
->>> .scale-x-enter-active, >>> .scale-x-leave-active {
+:deep(.scale-x-enter-active), :deep(.scale-x-leave-active) {
   transition: all .3s ease-in-out;
 }
 
->>> .scale-x-enter, >>> .scale-x-leave-to {
+:deep(.scale-x-enter), :deep(.scale-x-leave-to) {
   width: 0;
   opacity: 0;
 }
